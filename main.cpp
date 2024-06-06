@@ -13,8 +13,8 @@
 #include "glm/gtc/type_ptr.hpp"
 
 // A bunch of defines
-#define VIEWPORT_WIDTH 1920
-#define VIEWPORT_HEIGHT 1080
+#define VIEWPORT_WIDTH 3840
+#define VIEWPORT_HEIGHT 2160
 
 class CameraTransforms {
 public:

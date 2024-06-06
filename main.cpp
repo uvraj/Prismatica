@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <array>
+#include <chrono>
 
 // STB for image writes
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -12,8 +13,8 @@
 #include "glm/gtc/type_ptr.hpp"
 
 // A bunch of defines
-#define VIEWPORT_WIDTH 512
-#define VIEWPORT_HEIGHT 512
+#define VIEWPORT_WIDTH 1920
+#define VIEWPORT_HEIGHT 1080
 
 class CameraTransforms {
 public:
@@ -25,7 +26,7 @@ public:
     CameraTransforms(const float& fov) {
         projectionMatrix = glm::perspective(glm::radians(fov), (float) VIEWPORT_WIDTH / (float) VIEWPORT_HEIGHT, 0.1f, 100.0f);
         projectionMatrixInverse = glm::inverse(projectionMatrix);
-        viewMatrix = glm::rotate(glm::mat4(1.0f), 3.141592f / 16.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        viewMatrix = glm::rotate(glm::mat4(1.0f), 3.141592f / 8.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         // viewMatrix = viewMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         viewMatrixInverse = glm::inverse(viewMatrix);
     }
@@ -46,6 +47,15 @@ void PrintVec4(const glm::vec4& vec) {
 
 glm::vec3 Reinhard(const glm::vec3& linearValue) {
     return linearValue / (linearValue + glm::vec3(1.0f));
+}
+
+glm::vec3 ACESFilm(const glm::vec3& x) {
+    const float a = 2.51f;
+    const float b = 0.03f;
+    const float c = 2.43f;
+    const float d = 0.59f;
+    const float e = 0.14f;
+    return glm::clamp((x*(a*x+b))/(x*(c*x+d)+e), glm::vec3(0.0f), glm::vec3(1.0f));
 }
 
 glm::vec3 LinearToSrgb(const glm::vec3& linearValue) {
@@ -111,9 +121,9 @@ void RayTraceScene(glm::vec3& hitPos, glm::vec3& hitNormal, bool& rayHit, const 
 
     glm::vec3 hitPosSphere{};
     glm::vec3 hitNormalSphere{};
-    glm::vec3 sphereOrigin = glm::vec3(0.0f, 0.5, -2.5f);
+    glm::vec3 sphereOrigin = glm::vec3(0.0f, 0.5, -3.5f);
     bool rayHitSphere{false};
-    IntersectSphere(hitPosSphere, hitNormalSphere, rayHitSphere, sphereOrigin, rayOrigin, rayDirection, 0.5f);
+    IntersectSphere(hitPosSphere, hitNormalSphere, rayHitSphere, sphereOrigin, rayOrigin, rayDirection, 0.75f);
     
     // Choose the closer intersection point
 
@@ -138,12 +148,13 @@ void RayTraceScene(glm::vec3& hitPos, glm::vec3& hitNormal, bool& rayHit, const 
 
 glm::vec3 CalculatePointLightContribution(const glm::vec3& illuminance, const glm::vec3& worldPos, const glm::vec3& pointLightPos, const glm::vec3& normal) {
     float nDotL = glm::dot(normal, glm::normalize(pointLightPos - worldPos));
+          nDotL = glm::clamp(nDotL, 0.0f, 1.0f);
     float attenuation = 1.0 / std::pow(glm::distance(worldPos, pointLightPos), 2.0f);
     return illuminance * nDotL * attenuation;
 }
 
 glm::vec3 Render(const std::size_t& x, const std::size_t& y, const CameraTransforms& cameraTransforms) {
-    glm::vec3 sceneColor{};
+    glm::vec3 sceneColor{0.0f};
 
     glm::vec2 nCoord = glm::vec2{(float) x / VIEWPORT_WIDTH, (float) y / VIEWPORT_HEIGHT};
     glm::vec3 screenPos = glm::vec3(nCoord, -1.0);
@@ -158,23 +169,19 @@ glm::vec3 Render(const std::size_t& x, const std::size_t& y, const CameraTransfo
     glm::vec3 hitPos{};
     glm::vec3 hitNormal;
 
-    glm::vec3 rayOrigin = glm::vec3(cameraTransforms.viewMatrix[3].x, cameraTransforms.viewMatrix[3].y, cameraTransforms.viewMatrix[3].z);
+    glm::vec3 rayOrigin = glm::vec3(0.0f, 1.0f, 0.0f);
     RayTraceScene(hitPos, hitNormal, rayHit, rayOrigin, worldVector);
 
     glm::vec3 pointLightPos = glm::vec3(0.0f, -0.4f, -2.0f);
 
     if (rayHit) {
-        sceneColor += CalculatePointLightContribution(glm::vec3(1.0f, 0.0f, 0.0f), hitPos, glm::vec3(-0.3f, -0.3f, -2.0f), hitNormal);
+        sceneColor += CalculatePointLightContribution(glm::vec3(1.0f, 0.0f, 0.0f), hitPos, glm::vec3(-0.6f, -0.3f, -2.0f), hitNormal);
         sceneColor += CalculatePointLightContribution(glm::vec3(0.0f, 1.0f, 0.0f), hitPos, glm::vec3(0.0f, -0.3f, -2.0f),  hitNormal);
-        sceneColor += CalculatePointLightContribution(glm::vec3(0.0f, 0.0f, 1.0f), hitPos, glm::vec3(0.3f, -0.3f, -2.0f),  hitNormal);
-    }
-
-    else {
-        sceneColor = glm::vec3(0.0f);
+        sceneColor += CalculatePointLightContribution(glm::vec3(0.0f, 0.0f, 1.0f), hitPos, glm::vec3(0.6f, -0.3f, -2.0f),  hitNormal);
     }
 
     //return hitNormal * glm::vec3(0.1f);
-    return sceneColor * glm::vec3(0.5);
+    return sceneColor;
 }
 
 int main() {
@@ -183,13 +190,15 @@ int main() {
 
     CameraTransforms cameraTransforms(70.0f);
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     for(std::size_t y = 0; y < VIEWPORT_HEIGHT; y++) {
         for(std::size_t x = 0; x < VIEWPORT_WIDTH; x++) {
             // Invoke the meat of the implementation
             glm::vec3 sceneColor = Render(x, y, cameraTransforms);
 
             sceneColor = Reinhard(sceneColor);
-            sceneColor = LinearToSrgb(sceneColor);
+            sceneColor = ACESFilm(sceneColor);
 
             // Assuming the scene color is unsigned and normalized
             int r = sceneColor.x * 255;
@@ -205,11 +214,16 @@ int main() {
             frameBuffer.at(Map2Dto1D(x * 3, y * 3) + 1) = g;
             frameBuffer.at(Map2Dto1D(x * 3, y * 3) + 2) = b;
         }
-        std::cout << "Rendered Line " << y << " out of " << VIEWPORT_HEIGHT << "\n";
+        // std::cout << "Rendered Line " << y << " out of " << VIEWPORT_HEIGHT << "\n";
     }
 
     stbi_write_png("test.png", VIEWPORT_WIDTH, VIEWPORT_HEIGHT, 3, frameBuffer.data(), 0);
-    std::cout << "Wrote " << frameBuffer.size() << " bytes (hopefully)";
+    std::cout << "Wrote " << frameBuffer.size() << " bytes (hopefully)\n";
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds> (stop - start);
+
+    std::cout << "Execution took " << duration.count() << "ms\n";
 
     return 0;
 }

@@ -2,8 +2,9 @@
 #include <cmath>
 #include <array>
 #include <chrono>
-#include <string>
-#include <iomanip>
+#include <algorithm>
+#include <vector>
+#include <random>
 
 // STB for image writes
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -15,8 +16,15 @@
 #include "glm/gtc/type_ptr.hpp"
 
 // A bunch of defines
-#define VIEWPORT_WIDTH 3840
-#define VIEWPORT_HEIGHT 2160
+#define VIEWPORT_WIDTH 512
+#define VIEWPORT_HEIGHT 512
+
+const float PI = 3.141592f;
+const float TAU = 2.0f * PI;
+const float HPI = PI * 0.5f;
+const float rPI = 1.0f / PI;
+const float rTAU = 1.0f / TAU;
+const float PHI = std::sqrt(5.0f) * 0.5f + 0.5f;
 
 class CameraTransforms {
 public:
@@ -33,10 +41,41 @@ public:
         viewMatrixInverse = glm::inverse(viewMatrix);
     }
 
+    // TODO: Animation support
     void onNewFrame(const std::size_t& index) {
         viewMatrix = glm::rotate(glm::mat4(1.0f), 3.141592f / 8.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         viewMatrix = viewMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(std::sin(index / 60.0f) * 0.1, 0.0f, 0.0f));
         viewMatrixInverse = glm::inverse(viewMatrix);
+    }
+};
+
+class Material {
+public:
+    glm::vec3 albedo;
+    bool isEmissive;
+    float emissivity;
+
+    Material() {
+        albedo = glm::vec3(0.0f);
+        isEmissive = false;
+        emissivity = 0.0f;
+    }
+};
+
+class HitData {
+public:
+    glm::vec3 hitPos;
+    glm::vec3 hitNormal;
+    Material material;
+    float t;
+    bool rayHit;
+
+    HitData() {
+        hitPos = glm::vec3(0.0f);
+        hitNormal = glm::vec3(0.0f);
+        material = Material();
+        t = std::numeric_limits<float>::max(); // absurdly large value
+        rayHit = false;
     }
 };
 
@@ -65,11 +104,28 @@ glm::vec3 LinearToSrgb(const glm::vec3& linearValue) {
     return glm::pow(linearValue, glm::vec3(1.0 / 2.2));
 }
 
-void IntersectSphere(glm::vec3& hitPos, glm::vec3& hitNormal, bool& rayHit, const glm::vec3& sphereOrigin, const glm::vec3& rayOrigin, const glm::vec3& direction, const float& radius) {
-    hitPos = glm::vec3(0.0f);
-    hitNormal = glm::vec3(0.0f);
-    rayHit = false;
+glm::vec3 UniformSampleHemisphere(glm::vec3 normal, glm::vec2 rand){
+    // cos(theta) = r1 = y
+    // cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = sqrt(1 - cos^2(theta))
+    float sinTheta = std::sqrt(1.0 - rand.x * rand.x);
+    float phi = 2.0 * PI * rand.y;
+    float x = sinTheta * std::cos(phi);
+    float z = sinTheta * std::sin(phi);
+    
+    // Transform the local hemisphere direction to world space aligned with the normal
+    glm::vec3 tangent, bitangent;
+    if (glm::abs(normal.x) > 0.1) {
+        tangent = glm::normalize(glm::cross(normal, glm::vec3(0.0, 1.0, 0.0)));
+    } else {
+        tangent = glm::normalize(glm::cross(normal, glm::vec3(1.0, 0.0, 0.0)));
+    }
+    bitangent = normalize(cross(normal, tangent));
 
+    glm::vec3 hemisphereDir = tangent * x + normal * rand.x + bitangent * z;
+    return normalize(hemisphereDir);
+}
+
+void IntersectSphere(HitData& hitData, const Material& material, const glm::vec3& sphereOrigin, const float& radius, const glm::vec3& rayOrigin, const glm::vec3& direction) {
     // Analytical Sphere Intersection
     glm::vec3 originsDelta = sphereOrigin - rayOrigin;
     float tca = glm::dot(originsDelta, direction);
@@ -84,77 +140,98 @@ void IntersectSphere(glm::vec3& hitPos, glm::vec3& hitNormal, bool& rayHit, cons
     float t = (t0 < t1) ? t0 : t1;
     if (t < 0) return; // Intersection point is behind the ray's origin
 
-    hitPos = rayOrigin + direction * t;
-    hitNormal = glm::normalize(hitPos - sphereOrigin);
-    rayHit = true;
+    hitData.hitPos = rayOrigin + direction * t;
+    hitData.hitNormal = glm::normalize(hitData.hitPos - sphereOrigin);
+    hitData.t = t;
+    hitData.rayHit = true;
+    hitData.material = material;
 }
 
-void IntersectPlane(glm::vec3& hitPos, bool& rayHit, const glm::vec3& normal, const glm::vec3& origin, const glm::vec3& rayOrigin, const glm::vec3& rayDirection, float& t) {
+void IntersectPlane(HitData& hitData, const Material& material, const glm::vec3& planeOrigin, const glm::vec3& planeNormal, const glm::vec3& rayOrigin, const glm::vec3& rayDirection) {
     // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection.html
     // Equation 5
+    hitData.hitNormal = planeNormal;
+    float denom = glm::dot(hitData.hitNormal, rayDirection);
 
-    hitPos = glm::vec3(0.0f);
-    rayHit = false;
-    t = 0.0f;
+    if (std::abs(denom) < 1e-6) return;
 
-    float denom = glm::dot(normal, rayDirection);
+    glm::vec3 originsDelta = planeOrigin - rayOrigin;
+    hitData.t = glm::dot(originsDelta, hitData.hitNormal) / denom;
 
-    if (std::abs(denom) > 1e-6) {
-        glm::vec3 originsDelta = origin - rayOrigin;
-        t = glm::dot(originsDelta, normal) / denom;
-
-        if (t >= 0) {
-            hitPos = t * rayDirection + rayOrigin;
-            rayHit = true;
-        }
+    if (hitData.t >= 0) {
+        hitData.hitPos = hitData.t * rayDirection + rayOrigin;
+        hitData.rayHit = true;
+        hitData.material = material;
     }
 }
 
-void RayTraceScene(glm::vec3& hitPos, glm::vec3& hitNormal, bool& rayHit, const glm::vec3& rayOrigin, const glm::vec3& rayDirection) {
-    hitPos = glm::vec3(0.0f);
-    hitNormal = glm::vec3(0.0f);
+bool CompareHitData(const HitData& a, const HitData& b) {
+    return a.t < b.t;
+}
 
-    glm::vec3 planeOrigin1 = glm::vec3(0.0f, -0.5f, -1.0f);
-    glm::vec3 hitPosPlane1{};
-    glm::vec3 planeNormal1 = glm::vec3(0.0f, 1.0f, 0.0f);
-    bool rayHitPlane1 = false;
-    float t1{};
+HitData SortIntersections(std::vector<HitData>& hitData) {
+    std::sort(hitData.begin(), hitData.end(), CompareHitData);
 
-    IntersectPlane(hitPosPlane1, rayHitPlane1, planeNormal1, planeOrigin1, rayOrigin, rayDirection, t1);
+    HitData closestHit{};
+    bool anyRayHit = false;
 
-    glm::vec3 hitPosSphere{};
-    glm::vec3 hitNormalSphere{};
-    glm::vec3 sphereOrigin = glm::vec3(0.0f, 0.5, -3.5f);
-    bool rayHitSphere{false};
-    IntersectSphere(hitPosSphere, hitNormalSphere, rayHitSphere, sphereOrigin, rayOrigin, rayDirection, 0.75f);
-    
-    // Choose the closer intersection point
-    // This depth check should be implemented in view space.
-
-    if (rayHitPlane1 && rayHitSphere) {
-        if (length(hitPosPlane1 - rayOrigin) < length(hitPosSphere - rayOrigin)) {
-            hitPos = hitPosPlane1;
-            hitNormal = planeNormal1;
-        } else {
-            hitPos = hitPosSphere,
-            hitNormal = hitNormalSphere;
+    for (const auto& hit : hitData) {
+        if (hit.rayHit) {
+            closestHit = hit;
+            anyRayHit = true;
+            break;
         }
-    } else if (rayHitPlane1) {
-        hitPos = hitPosPlane1;
-        hitNormal = planeNormal1;
-    } else if (rayHitSphere) {
-        hitPos = hitPosSphere,
-        hitNormal = hitNormalSphere;
     }
 
-    rayHit = rayHitSphere || rayHitPlane1;
+    // Anyhit
+    closestHit.rayHit = anyRayHit;
+
+    return closestHit;
+}
+
+void RayTraceScene(HitData& hitData, const glm::vec3& rayOrigin, const glm::vec3& rayDirection) {
+    std::vector<HitData> hitDataTotal{};
+
+    Material material{};
+    material.albedo = glm::vec3(0.1f, 0.5f, 0.1f);
+    material.emissivity = 0.0f;
+    material.isEmissive = false;
+
+    Material sphereMaterial{};
+    material.albedo = glm::vec3(1.0f, 0.0f, 0.0f);
+    material.emissivity = 1.0f;
+    material.isEmissive = true;
+
+    HitData hitDataTemp;
+    IntersectPlane(hitDataTemp, material, glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), rayOrigin, rayDirection);
+    hitDataTotal.push_back(hitDataTemp);
+
+    hitData = HitData();
+    IntersectPlane(hitDataTemp, material, glm::vec3(0.0f, -0.5f, -7.0f), glm::vec3(0.0f, 0.0f, 1.0f), rayOrigin, rayDirection);
+    hitDataTotal.push_back(hitDataTemp);
+
+    hitData = HitData();
+    IntersectSphere(hitDataTemp, sphereMaterial, glm::vec3(0.0f, 0.5, -3.5f), 0.75f, rayOrigin, rayDirection);
+    hitDataTotal.push_back(hitDataTemp);
+    
+    // Choose the closer intersection
+    // using std::sort might not be the fastest solution. needs investigation.
+    hitData = SortIntersections(hitDataTotal);
 }
 
 glm::vec3 CalculatePointLightContribution(const glm::vec3& illuminance, const glm::vec3& worldPos, const glm::vec3& pointLightPos, const glm::vec3& normal) {
-    float nDotL = glm::dot(normal, glm::normalize(pointLightPos - worldPos));
+    glm::vec3 rayDirection = glm::normalize(pointLightPos - worldPos);
+    
+    float nDotL = glm::dot(normal, rayDirection);
           nDotL = glm::clamp(nDotL, 0.0f, 1.0f);
     float attenuation = 1.0f / std::pow(glm::distance(worldPos, pointLightPos), 2.0f);
-    return illuminance * nDotL * attenuation;
+
+    HitData hitData{};
+
+    // Shadow ray
+    RayTraceScene(hitData, worldPos + normal * glm::vec3(0.001f), rayDirection);
+
+    return illuminance * nDotL * attenuation * (float) !hitData.rayHit;
 }
 
 glm::vec3 Render(const std::size_t& x, const std::size_t& y, const CameraTransforms& cameraTransforms, const std::size_t& frameIdx) {
@@ -168,23 +245,24 @@ glm::vec3 Render(const std::size_t& x, const std::size_t& y, const CameraTransfo
     glm::vec4 worldPos = cameraTransforms.viewMatrixInverse * viewPos;
 
     glm::vec3 worldVector = glm::normalize(glm::vec3(worldPos.x, worldPos.y, worldPos.z));
-
-    bool rayHit{false};
-    glm::vec3 hitPos{};
-    glm::vec3 hitNormal;
-
     glm::vec3 rayOrigin = glm::vec3(0.0f, 1.0f, -0.2f);
-    RayTraceScene(hitPos, hitNormal, rayHit, rayOrigin, worldVector);
+    
+    glm::vec2 rand = glm::vec2(1.0);
 
-    if (rayHit) {
-        sceneColor += CalculatePointLightContribution(glm::vec3(1.0f, 0.0f, 0.0f), hitPos, glm::vec3(-0.6f, -0.3f, -2.0f), hitNormal);
-        sceneColor += CalculatePointLightContribution(glm::vec3(0.0f, 1.0f, 0.0f), hitPos, glm::vec3(0.0f, -0.3f, -2.0f),  hitNormal);
-        sceneColor += CalculatePointLightContribution(glm::vec3(0.0f, 0.0f, 1.0f), hitPos, glm::vec3(0.6f, -0.3f, -2.0f),  hitNormal);
-        // sceneColor += 0.1f * glm::clamp(glm::dot(hitNormal, glm::normalize(glm::vec3(-1.0f, 1.0f, 0.0f))), 0.0f, 1.0f);
-    }
+    HitData hitData{};
 
-    //return hitNormal * glm::vec3(0.1f);
-    return sceneColor * glm::vec3(0.8f);
+    // Camera Ray
+    RayTraceScene(hitData, rayOrigin, worldVector);
+    sceneColor = hitData.material.albedo;
+
+    glm::vec3 rayDir = UniformSampleHemisphere(hitData.hitNormal, rand);
+
+    //if (hitData.rayHit && !hitData.material.isEmissive) {
+        
+    //}
+
+    // return glm::length(hitData.hitPos) * glm::vec3(0.01f);
+    return sceneColor;
 }
 
 int main() {

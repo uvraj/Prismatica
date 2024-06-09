@@ -16,14 +16,14 @@
 #include <stb_image_write.h>
 
 // GLM since I don't want to implement MAD myself lol suck it arduino
-#define GLM_FORCE_SIMD_AVX2
+#define GLM_FORCE_INTRINSICS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 // A bunch of defines
 #define VIEWPORT_WIDTH 2048
 #define VIEWPORT_HEIGHT 1024
-#define SAMPLES 1024
+#define SAMPLES 64
 #define THREADS 16
 
 #define MQTT "[\e[0;36mMQTT\033[0m]\t\t"
@@ -237,7 +237,7 @@ void RayTraceScene(HitData& hitData, const glm::vec3& rayOrigin, const glm::vec3
 
     Material sphereMaterial{};
     sphereMaterial.albedo = glm::vec3(1.0f, 0.0f, 0.0f);
-    sphereMaterial.emissivity = 1.0f;
+    sphereMaterial.emissivity = 1.5f;
     sphereMaterial.isEmissive = true;
 
     HitData hitDataTemp;
@@ -339,6 +339,8 @@ void DispatchTile(std::array<glm::vec3, VIEWPORT_WIDTH * VIEWPORT_HEIGHT>& frame
             }
 
             sceneColor /= (float) SAMPLES;
+            sceneColor = ACESFilm(sceneColor);
+            sceneColor = LinearToSrgb(sceneColor);
             frameBuffer.at(y * VIEWPORT_WIDTH + x) = sceneColor;
         }
     }

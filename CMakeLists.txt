@@ -23,7 +23,7 @@ if (MSVC)
     add_compile_options(/W4)
 else()
     # lots of warnings 
-    add_compile_options(-Wall -Wextra -Ofast)
+    add_compile_options(-Wall -Wextra -Ofast -march=native -flto)
 endif()
 
 # Add the exectable to CMAKE

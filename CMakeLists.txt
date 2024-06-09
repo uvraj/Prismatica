@@ -23,7 +23,7 @@ if (MSVC)
     add_compile_options(/W4)
 else()
     # lots of warnings 
-    add_compile_options(-Wall -Wextra)
+    add_compile_options(-Wall -Wextra -Ofast)
 endif()
 
 # Add the exectable to CMAKE
@@ -43,5 +43,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${STB_DIR})
 # We might want to make this PUBLIC in the future.
 #target_precompile_headers(${PROJECT_NAME} PRIVATE ${stb_src})
 
+# paho
+find_package(PahoMqttCpp REQUIRED)
+
 # Link everything
-target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PahoMqttCpp::paho-mqttpp3)

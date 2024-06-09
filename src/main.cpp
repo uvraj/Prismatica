@@ -5,6 +5,11 @@
 #include <algorithm>
 #include <vector>
 #include <random>
+#include <sstream>
+#include <thread>
+#include <mutex>
+
+#include <mqtt/client.h>
 
 // STB for image writes
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -16,9 +21,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // A bunch of defines
-#define VIEWPORT_WIDTH 512
-#define VIEWPORT_HEIGHT 512
-#define SAMPLES 64
+#define VIEWPORT_WIDTH 2048
+#define VIEWPORT_HEIGHT 1024
+#define SAMPLES 1024
+#define THREADS 16
+
+#define MQTT "[\e[0;36mMQTT\033[0m]\t\t"
+#define RENDERER "[\e[0;32mRENDERER\033[0m]\t"
 
 const float PI = 3.141592f;
 const float TAU = 2.0f * PI;
@@ -26,6 +35,34 @@ const float HPI = PI * 0.5f;
 const float rPI = 1.0f / PI;
 const float rTAU = 1.0f / TAU;
 const float PHI = std::sqrt(5.0f) * 0.5f + 0.5f;
+
+const std::string BROKER_URL = "industrial.api.ubidots.com:1883";
+const std::string CLIENT_ID = "ubidots_mqtt_cpp_client";
+const std::string TOKEN = "BBUS-FJ0t8ffIFZZqVjAbWIfcBtFEhNoIJC";
+const std::string DEVICE_LABEL = "mqttraytracer";
+const std::string VARIABLE_LABEL = "rendertime";
+const int QOS = 0;
+
+class callback : public virtual mqtt::callback
+{
+    void connected(const std::string& cause) override {
+        std::cout << MQTT << "Connection successful" << std::endl;
+    }
+
+    void connection_lost(const std::string& cause) override {
+        std::cout << "\nConnection lost" << std::endl;
+        if (!cause.empty())
+            std::cout << "\tcause: " << cause << std::endl;
+    }
+
+    void message_arrived(mqtt::const_message_ptr msg) override {
+        std::cout << "\nMessage arrived" << std::endl;
+        std::cout << "topic: '" << msg->get_topic() << "'" << std::endl;
+        std::cout << "payload: '" << msg->to_string() << "'" << std::endl;
+    }
+
+    void delivery_complete(mqtt::delivery_token_ptr token) override {}
+};
 
 class CameraTransforms {
 public:
@@ -279,63 +316,122 @@ glm::vec3 Render(const std::size_t& x, const std::size_t& y, const CameraTransfo
     //return hitData.;
 }
 
-int main() {
-    // Init
-    stbi_flip_vertically_on_write(1);
-
-    static std::array<unsigned char, VIEWPORT_HEIGHT * VIEWPORT_WIDTH * 3> frameBuffer{};
-    CameraTransforms cameraTransforms(50.0f);
-
-    auto start = std::chrono::high_resolution_clock::now();
+void DispatchTile(std::array<glm::vec3, VIEWPORT_WIDTH * VIEWPORT_HEIGHT>& frameBuffer, std::size_t tileID, const CameraTransforms& cameraTransforms) {
+    std::cout << RENDERER << "Dispatching tile with ID: " << tileID << '\n';
+    std::size_t startY = tileID * VIEWPORT_HEIGHT / THREADS;
+    std::size_t endY = (tileID + 1) * VIEWPORT_HEIGHT / THREADS;
 
     std::default_random_engine rng;
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+    std::uniform_real_distribution<float> distribution{0.0f, 1.0f};
 
     float rngX{};
     float rngY{};
 
-    // Inner loop: iterate over every pixel
-    for (std::size_t y = 0; y < VIEWPORT_HEIGHT; y++) {
-        for (std::size_t x = 0; x < VIEWPORT_WIDTH; x++) {
-            glm::vec3 sceneColor = glm::vec3(0.0f);
+    glm::vec3 sceneColor = glm::vec3(0.0);
 
-            for (std::size_t s = 0; s < SAMPLES; s++) {
+    for (std::size_t x = 0; x < VIEWPORT_WIDTH; x++) {
+        for (std::size_t y = startY; y < endY; y++) {
+            // Invoke the meat of the implementation
+            for (std::size_t sample = 0; sample < SAMPLES; sample++) {
                 rngX = distribution(rng);
                 rngY = distribution(rng);
-
-                // Invoke the meat of the implementation
                 sceneColor += Render(x, y, cameraTransforms, glm::vec2(rngX, rngY));
             }
 
             sceneColor /= (float) SAMPLES;
-
-            sceneColor = ACESFilm(sceneColor);
-            sceneColor = LinearToSrgb(sceneColor);
-
-            // Assuming the scene color is unsigned and normalized
-            int r = sceneColor.x * 255;
-            int g = sceneColor.y * 255;
-            int b = sceneColor.z * 255;
-
-            // Return 0 if the values are negative
-            r = r < 0 ? 0 : r;
-            g = g < 0 ? 0 : g;
-            b = b < 0 ? 0 : b;
-
-            frameBuffer.at(Map2Dto1D(x * 3, y * 3)) = r;
-            frameBuffer.at(Map2Dto1D(x * 3, y * 3) + 1) = g;
-            frameBuffer.at(Map2Dto1D(x * 3, y * 3) + 2) = b;
+            frameBuffer.at(y * VIEWPORT_WIDTH + x) = sceneColor;
         }
-        // std::cout << "Rendered Line " << y << " out of " << VIEWPORT_HEIGHT << "\n";
+    }
+}
+
+
+int main() {
+    // Init
+    stbi_flip_vertically_on_write(1);
+
+    mqtt::async_client client(BROKER_URL, CLIENT_ID);
+    callback cb;
+    client.set_callback(cb);
+
+    mqtt::connect_options connOpts;
+    connOpts.set_clean_session(true);
+    connOpts.set_user_name(TOKEN);
+    connOpts.set_password("");
+
+    static std::array<unsigned char, 3 * VIEWPORT_WIDTH * VIEWPORT_HEIGHT> pngBuffer{};
+    static std::array<glm::vec3, VIEWPORT_WIDTH * VIEWPORT_HEIGHT> frameBuffer{};
+    CameraTransforms cameraTransforms(50.0f);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    const std::size_t numTiles = THREADS;
+    const std::size_t tileSize = VIEWPORT_HEIGHT / numTiles;
+
+    std::cout << RENDERER << "Tiles: " << numTiles << " Tile Height: " << tileSize << '\n';
+
+    std::vector<std::thread> threads;
+
+    for (std::size_t tile = 0; tile < numTiles; tile++) {
+        threads.emplace_back(
+            DispatchTile, 
+            std::ref(frameBuffer), 
+            tile,
+            std::cref(cameraTransforms)
+        );
     }
 
-    stbi_write_png("test.png", VIEWPORT_WIDTH, VIEWPORT_HEIGHT, 3, frameBuffer.data(), 0);
-    std::cout << "Wrote " << frameBuffer.size() << " elements (hopefully)\n";
+    for (auto& thread : threads) {
+        thread.join();
+    }
+
+    for (std::size_t i = 0; i < frameBuffer.size(); i++) {
+        // Assuming the data is 8 bit normalized
+        int r = frameBuffer.at(i).x * 255;
+        int g = frameBuffer.at(i).y * 255;
+        int b = frameBuffer.at(i).z * 255;
+
+        r = r < 0 ? 0 : r;
+        g = g < 0 ? 0 : g;
+        b = b < 0 ? 0 : b;
+
+        pngBuffer.at(i * 3) = r;
+        pngBuffer.at(i * 3 + 1) = g;
+        pngBuffer.at(i * 3 + 2) = b;
+    }
+
+    stbi_write_png("test.png", VIEWPORT_WIDTH, VIEWPORT_HEIGHT, 3, pngBuffer.data(), 0);
+    std::cout << RENDERER << "Wrote " << pngBuffer.size() << " elements (hopefully)\n";
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds> (stop - start);
 
-    std::cout << "Execution took " << duration.count() << "ms\n";
+    std::cout << RENDERER << "Execution took " << duration.count() << "ms\n";
+
+    // Need a better solution. Fuck if I know
+    std::ostringstream oss;
+    oss << duration.count();
+
+    std::string pubTopic = "/v1.6/devices/" + DEVICE_LABEL;
+    std::string payload = "{\"" + VARIABLE_LABEL + "\": " + oss.str() + "}";
+
+    try {
+        std::cout << MQTT << "Connecting to the broker" << std::endl;
+        client.connect(connOpts)->wait();
+
+        // Fuck off it doesnt work anyways leave it.
+        mqtt::message_ptr pubmsg = mqtt::make_message(pubTopic, payload);
+        pubmsg->set_qos(QOS);
+
+        client.publish(pubmsg)->wait_for(std::chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
+        client.disconnect()->wait();
+        std::cout << MQTT << "Disconnected" << std::endl;
+    } catch (const mqtt::exception& exc) {
+        std::cerr << "Error: " << exc.what() << std::endl;
+        return 1;
+    }
+
 
     return 0;
 }

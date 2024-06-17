@@ -19,11 +19,11 @@ Prismatica includes the following features:
 Prismatica's internal execution sequence is structured as follows:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/uvraj/Prismatica/ffa03e5d1f4fb47f450e80449b64025984fcffa3/resources/Prismatica_Overview.svg" width = "400px"/>
+  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/Prismatica_Overview.svg?raw=true" width = "400px"/>
 </p>
 
 To facilitate multithreading, the screen - a grid of pixels - is divided into multiple strips. The following example illustrates the allocation of strips (from here on referred to as "tiles") assuming 4 threads:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/uvraj/Prismatica/f11b0c838ae2250298c7c92ca0513b17b307ce46/resources/stripes.svg" width = "400px"/>
+  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/stripes.jpg?raw=true" width = "400px"/>
 </p>

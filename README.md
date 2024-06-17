@@ -2,20 +2,10 @@
 
 <img align="left" style="width:180px" src="https://github.com/uvraj/Prismatica/blob/main/resources/test_gudder.png?raw=true" width="400px">
 
-<div style="margin-bottom:1cm;text-align: justify"> 
-  Prismatica is a rudimentary, yet fully functional renderer written in C++. To achieve photorealistic renders,
-  Prismatica implements a rendering technique called Monte Carlo path tracing. 
-</div>
+Prismatica is a rudimentary, yet fully functional renderer written in C++. To achieve photorealistic renders,
+Prismatica implements a rendering technique called Monte-Carlo path tracing. 
 
-
-<div style="text-align: justify"> 
-  Prismatica leverages multithreading to accelerate the path tracer. As of writing, it only supports perfectly diffuse (Lambertian) or perfectly specular materials. Moreover, the image is outputted as a portable network graphic. Using a compatible viewer to view the rendered image is advised.
-</div>
-
-
-
-
-
+Prismatica leverages multithreading to accelerate the path tracer. As of writing, it only supports perfectly diffuse (Lambertian) or perfectly specular materials. Moreover, the image is outputted as a portable network graphic. Using a compatible viewer to view the rendered image is advised.
 
 ## Features
 Prismatica includes the following features:
@@ -54,4 +44,3 @@ a moot point in the implementation. Therefore, the amount of light bounces bear 
 
 To enhance visual quality and aesthetics, the linear image (cd/m^2) is tonemapped and then converted into the sRGB color space. This ensures correct colors and pleasing aesthetics.  The utilized tonemap stems from [here.](https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/)
 
-<p style="text-align: center;">Text with basic formatting applied</p>

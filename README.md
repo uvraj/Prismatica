@@ -16,14 +16,19 @@ Prismatica includes the following features:
 
 ## Implementation details
 
-Prismatica's internal execution sequence is structured as follows:
+Prismatica's multithreaded execution sequence starts with the initialization, followed by the dispatch
+of ```n``` threads responsible for rendering the image. Afterwards, the threads are joined to ensure synchronization.  
 
 <p align="center">
-  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/Prismatica_Overview.svg?raw=true" width = "400px"/>
+  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/Prismatica_Overview.svg?raw=true" width = "500px"/>
 </p>
 
-To facilitate multithreading, the screen - a grid of pixels - is divided into multiple strips. The following example illustrates the allocation of strips (from here on referred to as "tiles") assuming 4 threads:
+To facilitate multithreading, the screen - a grid of pixels - is divided into multiple strips. Assuming ```n``` threads results in ```n``` strips. The following example elucidates the allocation of strips (hereafter referred to as "tiles") with 4 threads:
 
 <p align="center">
-  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/stripes.jpg?raw=true" width = "400px"/>
+  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/stripes.jpg?raw=true" width = "300px"/>
 </p>
+
+Each thread executes the ```DispatchTile()``` function, which renders a strip of the scene using ```Render()```.
+For each pixel, a total of 3 GI rays are dispatched. Keen readers will have noticed the absence of reflection rays, which were not given dedicated rays.
+Instead, reflection rays are implemented recursively into the ```RayTraceScene()``` function.

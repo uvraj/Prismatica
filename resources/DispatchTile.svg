@@ -126,8 +126,8 @@
       </g>
       <g class="TextShape">
        <g id="id6">
-        <rect class="BoundingBox" stroke="none" fill="none" x="150" y="51" width="13341" height="908"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="494px" font-weight="400"><tspan class="TextPosition" x="400" y="709"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">DispatchTile(</tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">) executed by thread </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">, responsible for tile </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre"> </tspan></tspan></tspan></text>
+        <rect class="BoundingBox" stroke="none" fill="none" x="250" y="151" width="13341" height="908"/>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="494px" font-weight="400"><tspan class="TextPosition" x="500" y="809"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">DispatchTile(</tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">) executed by thread </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">, responsible for tile </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre"> </tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.CustomShape">
@@ -141,14 +141,14 @@
        <g id="id8">
         <rect class="BoundingBox" stroke="none" fill="none" x="3983" y="4933" width="6038" height="1538"/>
         <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 4251,4951 L 4251,4951 C 4207,4951 4164,4963 4126,4985 4088,5006 4056,5038 4035,5076 4013,5114 4001,5157 4001,5201 L 4001,6201 4001,6202 C 4001,6246 4013,6289 4035,6327 4056,6365 4088,6397 4126,6418 4164,6440 4207,6452 4251,6452 L 9751,6452 9752,6452 C 9796,6452 9839,6440 9877,6418 9915,6397 9947,6365 9968,6327 9990,6289 10002,6246 10002,6202 L 10001,5201 10002,5201 10002,5201 C 10002,5157 9990,5114 9968,5076 9947,5038 9915,5006 9877,4985 9839,4963 9796,4951 9752,4951 L 4251,4951 Z"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="493px" font-weight="400"><tspan class="TextPosition" x="5258" y="5622"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">RayTraceScene()</tspan></tspan><tspan class="TextPosition" x="5637" y="6202"><tspan font-size="423px" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Primary GI Ray</tspan></tspan></tspan></text>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="494px" font-weight="400"><tspan class="TextPosition" x="5248" y="5624"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">RayTraceScene()</tspan></tspan><tspan class="TextPosition" x="5637" y="6204"><tspan font-size="423px" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Primary GI Ray</tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.CustomShape">
        <g id="id9">
         <rect class="BoundingBox" stroke="none" fill="none" x="3984" y="7334" width="6038" height="1538"/>
         <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 4252,7352 L 4252,7352 C 4208,7352 4165,7364 4127,7386 4089,7407 4057,7439 4036,7477 4014,7515 4002,7558 4002,7602 L 4002,8602 4002,8603 C 4002,8647 4014,8690 4036,8728 4057,8766 4089,8798 4127,8819 4165,8841 4208,8853 4252,8853 L 9752,8853 9753,8853 C 9797,8853 9840,8841 9878,8819 9916,8798 9948,8766 9969,8728 9991,8690 10003,8647 10003,8603 L 10002,7602 10003,7602 10003,7602 C 10003,7558 9991,7515 9969,7477 9948,7439 9916,7407 9878,7386 9840,7364 9797,7352 9753,7352 L 4252,7352 Z"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="493px" font-weight="400"><tspan class="TextPosition" x="5259" y="8023"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">RayTraceScene()</tspan></tspan><tspan class="TextPosition" x="5374" y="8603"><tspan font-size="423px" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Secondary GI Ray</tspan></tspan></tspan></text>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="494px" font-weight="400"><tspan class="TextPosition" x="5249" y="8025"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">RayTraceScene()</tspan></tspan><tspan class="TextPosition" x="5374" y="8605"><tspan font-size="423px" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Secondary GI Ray</tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="TextShape">
@@ -186,8 +186,8 @@
       </g>
       <g class="com.sun.star.drawing.CustomShape">
        <g id="id15">
-        <rect class="BoundingBox" stroke="none" fill="none" x="-53" y="26" width="14064" height="15958"/>
-        <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 363,44 L 363,44 C 311,44 260,58 214,84 169,110 131,148 104,193 78,238 64,290 63,342 L -35,15667 -35,15667 C -36,15719 -22,15771 3,15816 29,15861 67,15899 112,15925 157,15951 208,15965 261,15965 L 13594,15964 13594,15965 C 13646,15965 13697,15951 13743,15925 13788,15899 13826,15861 13853,15816 13879,15771 13893,15719 13894,15667 L 13992,342 13992,342 13992,342 C 13993,290 13979,238 13954,193 13928,148 13890,110 13845,84 13800,58 13749,44 13696,44 L 363,44 Z"/>
+        <rect class="BoundingBox" stroke="none" fill="none" x="132" y="82" width="13638" height="15894"/>
+        <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 380,100 L 381,100 C 340,100 301,111 265,131 230,151 201,180 181,216 161,251 150,290 150,331 L 150,15726 150,15726 C 150,15767 161,15806 181,15842 201,15877 230,15906 266,15926 301,15946 340,15957 381,15957 L 13520,15957 13520,15957 C 13561,15957 13600,15946 13636,15926 13671,15906 13700,15877 13720,15842 13740,15806 13751,15767 13751,15726 L 13751,331 13751,331 13751,331 C 13751,290 13740,251 13720,215 13700,180 13671,151 13636,131 13600,111 13561,100 13520,100 L 380,100 Z"/>
        </g>
       </g>
      </g>

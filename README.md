@@ -4,7 +4,13 @@
 
 <div style="text-align: justify"> 
   Prismatica is a rudimentary, yet fully functional renderer written in C++. To achieve photorealistic renders,
-  Prismatica implements a rendering technique called Monte-Carlo path tracing. Prismatica leverages multithreading to accelerate the path tracer. As of writing, it only supports perfectly diffuse (Lambertian) or perfectly specular materials. Moreover, the image is outputted as a portable network graphic. Using a compatible viewer to view the rendered image is advised.
+  Prismatica implements a rendering technique called Monte Carlo path tracing. 
+</div>
+
+
+
+<div style="text-align: justify"> 
+  Prismatica leverages multithreading to accelerate the path tracer. As of writing, it only supports perfectly diffuse (Lambertian) or perfectly specular materials. Moreover, the image is outputted as a portable network graphic. Using a compatible viewer to view the rendered image is advised.
 </div>
 
 

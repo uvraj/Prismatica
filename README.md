@@ -11,7 +11,9 @@ Prismatica leverages multithreading to accelerate the path tracer. As of writing
 Prismatica includes the following features:
 - Perfectly diffuse materials
 - Perfectly reflective materials
-- Reflective caustics should be supported
+- Reflective caustics
+- Cylindrical camera projection
 
 ## Implementation details
 
+Prismatica's internal sequence is structured as follows:

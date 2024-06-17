@@ -1,6 +1,6 @@
 # Prismatica: A C++ global illumination renderer
 
-<img align="left" style="width:200px" src="https://github.com/uvraj/Prismatica/blob/main/resources/test_gudder.png?raw=true" width="400px">
+<img align="left" style="width:180px" src="https://github.com/uvraj/Prismatica/blob/main/resources/test_gudder.png?raw=true" width="400px">
 
 Prismatica is a rudimentary, yet fully functional renderer written in C++. To achieve photorealistic renders,
 Prismatica implements a rendering technique called Monte-Carlo path tracing. 

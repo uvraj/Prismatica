@@ -18,4 +18,6 @@ Prismatica includes the following features:
 
 Prismatica's internal sequence is structured as follows:
 
-![Flowchart](resources/Prismatica_Overview.svg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/uvraj/Prismatica/ffa03e5d1f4fb47f450e80449b64025984fcffa3/resources/Prismatica_Overview.svg" width = "400px"/>
+</p>

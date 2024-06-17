@@ -25,5 +25,5 @@ Prismatica's internal execution sequence is structured as follows:
 To facilitate multithreading, the screen - a grid of pixels - is divided into multiple strips. The following example illustrates the allocation of strips (from here on referred to as "tiles") assuming 4 threads:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/uvraj/Prismatica/ffa03e5d1f4fb47f450e80449b64025984fcffa3/resources/stripes.svg" width = "400px"/>
+  <img src="https://raw.githubusercontent.com/uvraj/Prismatica/13f1a2fb0dc70be27c6df18daed7e358e4f681ec/resources/stripes.svg" width = "400px"/>
 </p>

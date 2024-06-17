@@ -17,7 +17,7 @@ Prismatica includes the following features:
 ## Implementation details
 
 Prismatica's multithreaded execution sequence starts with the initialization, followed by the dispatch
-of ```n``` threads responsible for rendering the image. Afterwards, the threads are joined to ensure synchronization.  
+of ```n``` threads responsible for rendering the image. Afterwards, the threads are joined to ensure synchronization. In order to provide visual output to the user, the resulting image is saved as a portable network graphic.
 
 <p align="center">
   <img src="https://github.com/uvraj/Prismatica/blob/main/resources/Prismatica_Overview.svg?raw=true" width = "500px"/>
@@ -32,3 +32,14 @@ To facilitate multithreading, the screen - a grid of pixels - is divided into mu
 Each thread executes the ```DispatchTile()``` function, which renders a strip of the scene using ```Render()```.
 For each pixel, a total of 3 GI rays are dispatched. Keen readers will have noticed the absence of reflection rays, which were not given dedicated rays.
 Instead, reflection rays are implemented recursively into the ```RayTraceScene()``` function.
+
+The ```DispatchTile()```-function is outlined below:
+
+<p align="center">
+  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/DispatchTile.svg?raw=true" width = "500px"/>
+</p>
+
+Once again, keen readers will notice that the path tracer does not gather light recursively, presenting
+a moot point in the implementation. Therefore, the amount of light bounces is hard-limited to 2 right now.
+
+To enhance visual quality and aesthetics, the linear image (cd/m^2) is tonemapped and then converted into the sRGB color space. This ensures correct colors and pleasing aesthetics.  The utilized tonemap stems from [here.](https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/)

@@ -60,7 +60,7 @@
   </font>
  </defs>
  <defs class="TextShapeIndex">
-  <g ooo:slide="id1" ooo:id-list="id3 id4 id5 id6 id7 id8 id9 id10 id11 id12 id13 id14"/>
+  <g ooo:slide="id1" ooo:id-list="id3 id4 id5 id6 id7 id8 id9 id10 id11 id12 id13 id14 id15"/>
  </defs>
  <defs class="EmbeddedBulletChars">
   <g id="bullet-char-template-57356" transform="scale(0.00048828125,-0.00048828125)">
@@ -126,8 +126,8 @@
       </g>
       <g class="TextShape">
        <g id="id6">
-        <rect class="BoundingBox" stroke="none" fill="none" x="250" y="251" width="13341" height="908"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="494px" font-weight="400"><tspan class="TextPosition" x="500" y="909"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">DispatchTile(</tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">) executed by thread </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">, responsible for tile </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre"> </tspan></tspan></tspan></text>
+        <rect class="BoundingBox" stroke="none" fill="none" x="150" y="51" width="13341" height="908"/>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Segoe UI" font-size="494px" font-weight="400"><tspan class="TextPosition" x="400" y="709"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">DispatchTile(</tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">) executed by thread </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">, responsible for tile </tspan><tspan font-style="italic" fill="rgb(0,0,0)" stroke="none" style="white-space: pre">n</tspan><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre"> </tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.CustomShape">
@@ -182,6 +182,12 @@
         <rect class="BoundingBox" stroke="none" fill="none" x="6798" y="12035" width="353" height="1020"/>
         <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 6973,12053 L 6973,12554 6974,12554 6974,12725"/>
         <path fill="rgb(0,0,0)" stroke="none" d="M 7150,12702 L 6974,13054 6798,12702 7150,12702 Z"/>
+       </g>
+      </g>
+      <g class="com.sun.star.drawing.CustomShape">
+       <g id="id15">
+        <rect class="BoundingBox" stroke="none" fill="none" x="-53" y="26" width="14064" height="15958"/>
+        <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 363,44 L 363,44 C 311,44 260,58 214,84 169,110 131,148 104,193 78,238 64,290 63,342 L -35,15667 -35,15667 C -36,15719 -22,15771 3,15816 29,15861 67,15899 112,15925 157,15951 208,15965 261,15965 L 13594,15964 13594,15965 C 13646,15965 13697,15951 13743,15925 13788,15899 13826,15861 13853,15816 13879,15771 13893,15719 13894,15667 L 13992,342 13992,342 13992,342 C 13993,290 13979,238 13954,193 13928,148 13890,110 13845,84 13800,58 13749,44 13696,44 L 363,44 Z"/>
        </g>
       </g>
      </g>

@@ -16,8 +16,14 @@ Prismatica includes the following features:
 
 ## Implementation details
 
-Prismatica's internal sequence is structured as follows:
+Prismatica's internal execution sequence is structured as follows:
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/uvraj/Prismatica/ffa03e5d1f4fb47f450e80449b64025984fcffa3/resources/Prismatica_Overview.svg" width = "400px"/>
+</p>
+
+To facilitate multithreading, the screen - a grid of pixels - is divided into multiple strips. The following example illustrates the allocation of strips (from here on referred to as "tiles") assuming 4 threads:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/uvraj/Prismatica/ffa03e5d1f4fb47f450e80449b64025984fcffa3/resources/stripes.svg" width = "400px"/>
 </p>

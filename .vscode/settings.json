@@ -58,6 +58,7 @@
         "xthread": "cpp",
         "thread": "cpp",
         "random": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "mutex": "cpp"
     }
 }

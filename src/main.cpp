@@ -9,7 +9,9 @@
 #include <thread>
 #include <mutex>
 
-#include <mqtt/client.h>
+#ifdef MQTT_BENCHMARK_MODE
+    #include <mqtt/client.h>
+#endif
 
 // STB for image writes
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -33,38 +35,42 @@ const int QOS = 0;
 #include "include/intersections.h"
 #include "include/renderer.h"
 
-class callback : public virtual mqtt::callback {
-    void connected(const std::string& cause) override {
-        std::cout << MQTT_HINT << "Connection successful" << std::endl;
-    }
+#ifdef MQTT_BENCHMARK_MODE
+    class callback : public virtual mqtt::callback {
+        void connected(const std::string& cause) override {
+            std::cout << MQTT_HINT << "Connection successful" << std::endl;
+        }
 
-    void connection_lost(const std::string& cause) override {
-        std::cout << "\nConnection lost" << std::endl;
-        if (!cause.empty())
-            std::cout << "\tcause: " << cause << std::endl;
-    }
+        void connection_lost(const std::string& cause) override {
+            std::cout << "\nConnection lost" << std::endl;
+            if (!cause.empty())
+                std::cout << "\tcause: " << cause << std::endl;
+        }
 
-    void message_arrived(mqtt::const_message_ptr msg) override {
-        std::cout << "\nMessage arrived" << std::endl;
-        std::cout << "topic: '" << msg->get_topic() << "'" << std::endl;
-        std::cout << "payload: '" << msg->to_string() << "'" << std::endl;
-    }
+        void message_arrived(mqtt::const_message_ptr msg) override {
+            std::cout << "\nMessage arrived" << std::endl;
+            std::cout << "topic: '" << msg->get_topic() << "'" << std::endl;
+            std::cout << "payload: '" << msg->to_string() << "'" << std::endl;
+        }
 
-    void delivery_complete(mqtt::delivery_token_ptr token) override {}
-};
+        void delivery_complete(mqtt::delivery_token_ptr token) override {}
+    };
+#endif
 
 int main() {
     // Init
     stbi_flip_vertically_on_write(1);
 
-    mqtt::async_client client(BROKER_URL, CLIENT_ID);
-    callback cb;
-    client.set_callback(cb);
+    #ifdef MQTT_BENCHMARK_MODE
+        mqtt::async_client client(BROKER_URL, CLIENT_ID);
+        callback cb;
+        client.set_callback(cb);
 
-    mqtt::connect_options connOpts;
-    connOpts.set_clean_session(true);
-    connOpts.set_user_name(TOKEN);
-    connOpts.set_password("");
+        mqtt::connect_options connOpts;
+        connOpts.set_clean_session(true);
+        connOpts.set_user_name(TOKEN);
+        connOpts.set_password("");
+    #endif
 
     static std::array<unsigned char, 3 * VIEWPORT_WIDTH * VIEWPORT_HEIGHT> pngBuffer{};
     static std::array<glm::vec3, VIEWPORT_WIDTH * VIEWPORT_HEIGHT> frameBuffer{};
@@ -115,30 +121,32 @@ int main() {
 
     std::cout << RENDERER_HINT << "Execution took " << duration.count() << "ms\n";
 
-    // Need a better solution. Fuck if I know
-    std::ostringstream oss;
-    oss << duration.count();
+    #ifdef MQTT_BENCHMARK_MODE
+        // Need a better solution. Fuck if I know
+        std::ostringstream oss;
+        oss << duration.count();
 
-    std::string pubTopic = "/v1.6/devices/" + DEVICE_LABEL;
-    std::string payload = "{\"" + VARIABLE_LABEL + "\": " + oss.str() + "}";
+        std::string pubTopic = "/v1.6/devices/" + DEVICE_LABEL;
+        std::string payload = "{\"" + VARIABLE_LABEL + "\": " + oss.str() + "}";
 
-    try {
-        std::cout << MQTT_HINT << "Connecting to the broker" << std::endl;
-        client.connect(connOpts)->wait();
+        try {
+            std::cout << MQTT_HINT << "Connecting to the broker" << std::endl;
+            client.connect(connOpts)->wait();
 
-        // Fuck off it doesnt work anyways leave it.
-        mqtt::message_ptr pubmsg = mqtt::make_message(pubTopic, payload);
-        pubmsg->set_qos(QOS);
+            // Fuck off it doesnt work anyways leave it.
+            mqtt::message_ptr pubmsg = mqtt::make_message(pubTopic, payload);
+            pubmsg->set_qos(QOS);
 
-        client.publish(pubmsg)->wait_for(std::chrono::seconds(10));
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+            client.publish(pubmsg)->wait_for(std::chrono::seconds(10));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
-        client.disconnect()->wait();
-        std::cout << MQTT_HINT << "Disconnected" << std::endl;
-    } catch (const mqtt::exception& exc) {
-        std::cerr << "Error: " << exc.what() << std::endl;
-        return 1;
-    }
+            client.disconnect()->wait();
+            std::cout << MQTT_HINT << "Disconnected" << std::endl;
+        } catch (const mqtt::exception& exc) {
+            std::cerr << "Error: " << exc.what() << std::endl;
+            return 1;
+        }
+    #endif
 
     return 0;
 }

@@ -17,3 +17,5 @@ Prismatica includes the following features:
 ## Implementation details
 
 Prismatica's internal sequence is structured as follows:
+
+![Flowchart](resources/Prismatica_Overview.svg)

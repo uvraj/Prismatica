@@ -65,3 +65,11 @@ _But why?_, you might ask. Well, picture yourself having a fight with your frien
 Let's turn **this** into a benchmark. To facilitate this, a string containing a unique, CPU-specific ID in conjuction with the time it took the render the image should be published to the broker.
 
 Presently, only the latter is implemented. Getting strings describing the CPU model requires a plethora of platform-specific function calls, which are - for all intents and purposes - undesirable.
+
+## Showcase
+
+Running prismatica will yield the following image:
+
+<p align="center">
+  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/test.webp?raw=true" width = "500px"/>
+</p>

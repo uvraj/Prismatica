@@ -70,6 +70,4 @@ Presently, only the latter is implemented. Getting strings describing the CPU mo
 
 Running prismatica will yield the following image:
 
-<p align="center">
-  <img src="https://github.com/uvraj/Prismatica/blob/main/resources/test.webp?raw=true" width = "500px"/>
-</p>
+![Render example](resources/test.webp)

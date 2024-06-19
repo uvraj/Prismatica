@@ -71,3 +71,30 @@ Presently, only the latter is implemented. Getting strings describing the CPU mo
 Running prismatica will yield the following image:
 
 ![Render example](resources/test.webp)
+
+And generate the following stdoutput:
+
+```
+[RENDERER]      Tiles: 16 Tile Height: 16$
+[RENDERER]      Dispatching tile with ID: 0$
+[RENDERER]      Dispatching tile with ID: 1
+[RENDERER]      Dispatching tile with ID: 3
+[RENDERER]      Dispatching tile with ID: 13
+[RENDERER]      Dispatching tile with ID: 2
+[RENDERER]      Dispatching tile with ID: 7
+[RENDERER]      Dispatching tile with ID: 9
+[RENDERER]      Dispatching tile with ID: 4
+[RENDERER]      Dispatching tile with ID: 12
+[RENDERER]      Dispatching tile with ID: 15
+[RENDERER]      Dispatching tile with ID: 6
+[RENDERER]      Dispatching tile with ID: 10
+[RENDERER]      Dispatching tile with ID: 14
+[RENDERER]      Dispatching tile with ID: 8
+[RENDERER]      Dispatching tile with ID: 5
+[RENDERER]      Dispatching tile with ID: 11
+[RENDERER]      Wrote 196608 elements (hopefully)
+[RENDERER]      Execution took 588ms
+[MQTT]          Connecting to the broker
+[MQTT]          Connection successful
+[MQTT]          
+```

@@ -8,6 +8,7 @@
 #include <sstream>
 #include <thread>
 #include <mutex>
+#include <functional>
 
 #ifdef MQTT_BENCHMARK_MODE
     #include <mqtt/client.h>

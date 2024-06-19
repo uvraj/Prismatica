@@ -25,8 +25,8 @@ glm::vec3 Render(const std::size_t& x, const std::size_t& y, const glm::mat4& vi
     glm::vec3 rayDirWorld = glm::mat3(viewMatrix) * rayDir;
     glm::vec3 rayOrigin = glm::vec3(0.0f, 0.0f, 4.0f);
 
-    std::default_random_engine rngGen;
-    rngGen.seed(sample + x + y);
+    std::random_device randDevice;
+    std::default_random_engine rngGen{randDevice()};
     std::uniform_real_distribution<float> distribution{0.0f, 1.0f};
 
     auto RNG = std::bind(distribution, rngGen);
@@ -83,7 +83,7 @@ void DispatchTile(std::array<glm::vec3, VIEWPORT_WIDTH * VIEWPORT_HEIGHT>& frame
                 sceneColor += Render(x, y, cameraViewMatrix, sample);
             }
 
-            // sceneColor /= (float) SAMPLES;
+            sceneColor /= (float) SAMPLES;
             sceneColor = ACESFilm(sceneColor);
             sceneColor = LinearToSrgb(sceneColor);
 

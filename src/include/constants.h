@@ -9,6 +9,6 @@ constexpr float PHI = 1.6180339887498948482f;
 
 constexpr int VIEWPORT_WIDTH    = 256;
 constexpr int VIEWPORT_HEIGHT   = 256;
-constexpr int SAMPLES           = 32;
-constexpr int THREADS           = 4;
+constexpr int SAMPLES           = 1;
+constexpr int THREADS           = 1;
 constexpr int MAX_RECURSIONS    = 3;

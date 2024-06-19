@@ -15,7 +15,7 @@ glm::vec3 CalculatePointLightContribution(const glm::vec3& illuminance, const gl
     return illuminance * nDotL * attenuation * (float) !hitData.rayHit;
 }
 
-glm::vec3 Render(const std::size_t& x, const std::size_t& y, const glm::mat4& viewMatrix) {
+glm::vec3 Render(const std::size_t& x, const std::size_t& y, const glm::mat4& viewMatrix, const std::size_t& sample) {
     glm::vec3 sceneColor{0.0f};
 
     glm::vec2 nCoord = glm::vec2{(float) x / VIEWPORT_WIDTH, (float) y / VIEWPORT_HEIGHT};
@@ -26,7 +26,7 @@ glm::vec3 Render(const std::size_t& x, const std::size_t& y, const glm::mat4& vi
     glm::vec3 rayOrigin = glm::vec3(0.0f, 0.0f, 4.0f);
 
     std::default_random_engine rngGen;
-    rngGen.seed(std::chrono::system_clock::now().time_since_epoch().count() * x * y);
+    rngGen.seed(sample + x + y);
     std::uniform_real_distribution<float> distribution{0.0f, 1.0f};
 
     auto RNG = std::bind(distribution, rngGen);
@@ -74,18 +74,19 @@ void DispatchTile(std::array<glm::vec3, VIEWPORT_WIDTH * VIEWPORT_HEIGHT>& frame
     std::size_t startY = tileID * VIEWPORT_HEIGHT / THREADS;
     std::size_t endY = (tileID + 1) * VIEWPORT_HEIGHT / THREADS;
 
-    glm::vec3 sceneColor = glm::vec3(0.0);
-
     for (std::size_t x = 0; x < VIEWPORT_WIDTH; x++) {
         for (std::size_t y = startY; y < endY; y++) {
             // Invoke the meat of the implementation
+            glm::vec3 sceneColor = glm::vec3(0.0);
+
             for (std::size_t sample = 0; sample < SAMPLES; sample++) {
-                sceneColor += Render(x, y, cameraViewMatrix);
+                sceneColor += Render(x, y, cameraViewMatrix, sample);
             }
 
-            sceneColor /= (float) SAMPLES;
+            // sceneColor /= (float) SAMPLES;
             sceneColor = ACESFilm(sceneColor);
             sceneColor = LinearToSrgb(sceneColor);
+
             frameBuffer.at(y * VIEWPORT_WIDTH + x) = sceneColor;
         }
     }

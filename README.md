@@ -83,7 +83,7 @@ And generate the following stdoutput:
 [RENDERER]      Dispatching tile with ID: 3
 [RENDERER]      Dispatching tile with ID: 4
 [RENDERER]      Wrote 196608 elements
-[RENDERER]      Execution took 588ms
+[RENDERER]      Execution took 42ms
 [MQTT]          Connecting to the broker
 [MQTT]          Connection successful
 [MQTT]          Disconnecting

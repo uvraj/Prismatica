@@ -54,7 +54,7 @@ the required build files for your platform.
 - C++ STL
 - STB for image writes (included in /external/)
 - GLM for mathematics (included in /external/)
-- [paho.mqtt.cpp](https://github.com/eclipse/paho.mqtt.cpp) when using Benchmark Mode
+- [paho.mqtt.cpp](https://github.com/eclipse/paho.mqtt.cpp) when using Benchmark Mode (see next section)
 
 ### Benchmark Mode
 
@@ -66,6 +66,7 @@ _But why?_, you might ask. Well, picture yourself having a fight with your frien
 Let's turn **this** into a benchmark. To facilitate this, a string containing a unique, CPU-specific ID in conjuction with the time it took the render the image should be published to the broker.
 
 Presently, only the latter is implemented. Getting strings describing the CPU model requires a plethora of platform-specific function calls, which are - for all intents and purposes - undesirable.
+Compile with ```-DBUILD_MQTT=TRUE``` for benchmark mode. Requires libpaho-mqttpp.
 
 ## Showcase
 

@@ -123,7 +123,6 @@ int main() {
     std::cout << RENDERER_HINT << "Execution took " << duration.count() << "ms\n";
 
     #ifdef MQTT_BENCHMARK_MODE
-        // Need a better solution. Fuck if I know
         std::ostringstream oss;
         oss << duration.count();
 
@@ -134,7 +133,6 @@ int main() {
             std::cout << MQTT_HINT << "Connecting to the broker" << std::endl;
             client.connect(connOpts)->wait();
 
-            // Fuck off it doesnt work anyways leave it.
             mqtt::message_ptr pubmsg = mqtt::make_message(pubTopic, payload);
             pubmsg->set_qos(QOS);
 
